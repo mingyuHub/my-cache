@@ -35,7 +35,7 @@ public class CacheEvictProfilerExecutor extends AbstractCacheExecutor {
     }
 
     private void clearCache(String key){
-        firstLevelCache.del(key);
-        secondLevelCache.del(key);
+        distributedCache.del(key);
+        localCache.del(key);
     };
 }

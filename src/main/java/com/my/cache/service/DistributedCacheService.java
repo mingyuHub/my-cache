@@ -6,14 +6,15 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @author: chenmingyu
- * @date: 2019/10/10 11:13
- * @description: 默认二级缓存 使用redis
+ * @date: 2019/10/10 11:14
+ * @description: 分布式缓存
  */
-@Service("firstLevelCache")
-public class FirstLevelCacheService implements CacheService{
+@Service("distributedCache")
+public class DistributedCacheService implements CacheService{
+
     @Override
     public Object get(String key) {
-        System.out.println("一级缓存：get");
+        System.out.println("二级缓存：get");
         return null;
     }
 
@@ -24,12 +25,12 @@ public class FirstLevelCacheService implements CacheService{
 
     @Override
     public void set(String key, Object value) {
-        System.out.println("一级缓存：set");
+        System.out.println("二级缓存：set");
     }
 
     @Override
     public Boolean setEx(String key, Object object, Long time, TimeUnit timeUnit) {
-        System.out.println("一级缓存：setEx");
+        System.out.println("二级缓存：setEx");
         return null;
     }
 

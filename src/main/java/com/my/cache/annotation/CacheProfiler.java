@@ -20,18 +20,19 @@ import java.util.concurrent.TimeUnit;
 public @interface CacheProfiler {
 
     /**
-     * key前缀
+     * 缓存 cacheName的前缀部分
      */
     String prefixKey() default "";;
 
     /**
-     * 入参
+     * 缓存 cacheName的后缀部分
      * 支持SpEL表达式
      */
     String key() default "";
 
     /**
-     * 拼接key，优先级小于key()
+     * 缓存 cacheName的后缀部分
+     * 优先级小于key()
      * @return
      */
     boolean useParams() default true;
@@ -42,14 +43,15 @@ public @interface CacheProfiler {
     long expire() default -1;
 
     /**
-     * 缓存时间单位 秒
+     * 缓存时间单位，默认为秒
      *
      * @return TimeUnit
      */
     TimeUnit timeUnit() default TimeUnit.SECONDS;
 
     /**
-     * 当SpEL表达式为true时进行缓存
+     * condition为true时进行缓存
+     * 使用SpEL表达式解析condition
      * @return
      */
     String condition() default "";
@@ -67,9 +69,7 @@ public @interface CacheProfiler {
     long localCacheExpire() default -1;
 
     /**
-     * The bean name of the custom {@link org.springframework.cache.interceptor.KeyGenerator}
-     * to use.
-     * <p>Mutually exclusive with the {@link #key} attribute.
+     * key生成类
      * @see CacheConfig#keyGenerator
      */
     String keyGenerator() default "";

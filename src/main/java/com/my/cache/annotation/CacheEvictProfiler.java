@@ -52,8 +52,7 @@ public @interface CacheEvictProfiler {
     boolean beforeExecute() default true;
 
     /**
-     *
-     * @see CacheConfig#keyGenerator
+     * key生成方式
      */
     String keyGenerator() default "";
 }

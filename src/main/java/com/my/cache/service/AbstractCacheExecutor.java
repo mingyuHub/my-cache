@@ -11,10 +11,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 public abstract class AbstractCacheExecutor implements CacheExecutor{
 
     @Autowired
-    @Qualifier("firstLevelCache")
-    protected CacheService firstLevelCache;
+    @Qualifier("localCache")
+    protected CacheService localCache;
 
     @Autowired
-    @Qualifier("secondLevelCache")
-    protected CacheService secondLevelCache;
+    @Qualifier("distributedCache")
+    protected CacheService distributedCache;
 }
