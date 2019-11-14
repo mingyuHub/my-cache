@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
  * @date: 2019/10/10 16:56
  * @description:
  */
-@Configuration
 public class CacheConfiguration {
+
 
 }

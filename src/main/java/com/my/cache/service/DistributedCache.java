@@ -9,8 +9,7 @@ import java.util.concurrent.TimeUnit;
  * @date: 2019/10/10 11:14
  * @description: 分布式缓存
  */
-@Service("distributedCache")
-public class DistributedCacheService implements CacheService{
+public class DistributedCache implements Cache {
 
     @Override
     public Object get(String key) {

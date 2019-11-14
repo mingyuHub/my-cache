@@ -1,6 +1,7 @@
 package com.my.cache.service;
 
-import org.springframework.stereotype.Service;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import java.util.concurrent.TimeUnit;
 
@@ -9,12 +10,17 @@ import java.util.concurrent.TimeUnit;
  * @date: 2019/10/10 11:13
  * @description: 本地缓存
  */
-@Service("localCache")
-public class LocalCacheService implements CacheService{
+public class ApplicationCache extends AbstractCache {
 
+
+    /**
+     * 缓存对象
+     */
+    private final Cache<Object, Object> cache;
 
     @Override
     public Object get(String key) {
+
         System.out.println("一级缓存：get");
         return null;
     }
@@ -38,5 +44,19 @@ public class LocalCacheService implements CacheService{
     @Override
     public Boolean del(String key) {
         return null;
+    }
+
+
+    public ApplicationCache() {
+        this.cache = createCache();
+    }
+
+    /**
+     * 创建本地缓存
+     * @return
+     */
+    private Cache createCache(){
+        Caffeine<Object, Object> builder = Caffeine.newBuilder().initialCapacity(64).initialCapacity(64);
+        return builder.build();
     }
 }

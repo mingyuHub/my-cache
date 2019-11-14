@@ -1,12 +1,8 @@
 package com.my.cache.expression;
 
 import org.apache.commons.lang.StringUtils;
-import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.aop.support.AopUtils;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.cache.Cache;
 import org.springframework.context.expression.AnnotatedElementKey;
-import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.context.expression.CachedExpressionEvaluator;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
@@ -14,9 +10,7 @@ import org.springframework.lang.Nullable;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.Collection;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -86,13 +80,4 @@ public class CacheExpressionEvaluator extends CachedExpressionEvaluator {
         return (Boolean.TRUE.equals(getExpression(this.conditionCache, methodKey, conditionExpression).getValue(
                 evalContext, Boolean.class)));
     }
-
-    /**
-     * Clear all caches.
-     */
-    void clear() {
-        this.keyCache.clear();
-        this.conditionCache.clear();
-    }
-
 }

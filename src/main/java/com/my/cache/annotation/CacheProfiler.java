@@ -69,8 +69,7 @@ public @interface CacheProfiler {
     long localCacheExpire() default -1;
 
     /**
-     * key生成类
-     * @see CacheConfig#keyGenerator
+     * 缓存name生成类
      */
     String keyGenerator() default "";
 }

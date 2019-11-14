@@ -3,7 +3,7 @@ package com.my.cache.constant;
 /**
  * @author: chenmingyu
  * @date: 2019/10/14 15:22
- * @description:
+ * @description: 特殊字符
  */
 public class SeparatorConstant {
 

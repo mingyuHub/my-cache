@@ -1,4 +1,4 @@
-package com.my.cache.support.impl;
+package com.my.cache.support;
 
 import com.my.cache.annotation.CacheEvictProfiler;
 import com.my.cache.annotation.CacheProfiler;
@@ -32,7 +32,6 @@ import java.util.*;
  * @date: 2019/9/30 14:17
  * @description:
  */
-@Component
 public class MyCacheAnnotationParser implements CacheAnnotationParser {
 
     private static final Set<Class<? extends Annotation>> CACHE_OPERATION_ANNOTATIONS = new LinkedHashSet<>(8);

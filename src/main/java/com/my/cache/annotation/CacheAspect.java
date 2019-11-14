@@ -1,9 +1,12 @@
 package com.my.cache.annotation;
 
 import com.my.cache.domain.BasicCacheOperation;
-import com.my.cache.domain.CacheAnnotationEnum;
-import com.my.cache.service.CacheExecutor;
+import com.my.cache.constant.CacheAnnotationEnum;
+import com.my.cache.executor.CacheEvictProfilerExecutor;
+import com.my.cache.executor.CacheExecutor;
+import com.my.cache.executor.CacheProfilerExecutor;
 import com.my.cache.support.CacheAnnotationParser;
+import com.my.cache.support.MyCacheAnnotationParser;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -11,6 +14,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -20,13 +24,20 @@ import java.util.Map;
  */
 @Aspect
 @Component
-public class CacheProfilerAspect {
+public class CacheAspect {
 
-    @Autowired
-    private CacheAnnotationParser cacheAnnotationParser;
 
-    @Autowired
-    private Map<String,CacheExecutor> cacheExecutorMap;
+    private CacheAnnotationParser cacheAnnotationParser = new MyCacheAnnotationParser();
+
+    /**
+     * 执行器
+     */
+    private static final Map<String,CacheExecutor> CACHE_EXECUTOR_MAP = new HashMap<>();
+
+    static {
+        CACHE_EXECUTOR_MAP.put("CacheProfilerOperation", new CacheProfilerExecutor());
+        CACHE_EXECUTOR_MAP.put("CacheEvictProfilerOperation", new CacheEvictProfilerExecutor());
+    }
 
     /**
      * CacheProfiler
@@ -56,7 +67,7 @@ public class CacheProfilerAspect {
             if(null == basicCacheInformations || !basicCacheInformations.getCondition()){
                 return joinPoint.proceed();
             }
-            CacheExecutor cacheExecutor = cacheExecutorMap.get(CacheAnnotationEnum.getAnnotationExecutorByBeanName(basicCacheInformations.getClass().getSimpleName()));
+            CacheExecutor cacheExecutor = CACHE_EXECUTOR_MAP.get(CacheAnnotationEnum.getAnnotationExecutorByBeanName(basicCacheInformations.getClass().getSimpleName()));
             if(null == cacheExecutor){
                 return joinPoint.proceed();
             }

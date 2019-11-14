@@ -1,11 +1,12 @@
-package com.my.cache.domain;
+package com.my.cache.constant;
 
-import org.springframework.util.StringUtils;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * @auther: chenmingyu
  * @date: 2019/10/11 10:58
- * @description: 注解，注解执行器对应关系枚举
+ * @description: 注解执行器枚举
  */
 public enum CacheAnnotationEnum {
 
@@ -13,7 +14,9 @@ public enum CacheAnnotationEnum {
     CACHE_EVICT_PROFILER_EXECUTOR("CacheEvictProfilerOperation","cacheEvictProfilerExecutor");
 
     private String beanName;
-
+    /**
+     * 注解执行器
+     */
     private String annotationExecutor;
 
     CacheAnnotationEnum(String beanName, String annotationExecutor) {
@@ -22,22 +25,22 @@ public enum CacheAnnotationEnum {
     }
 
     public static String getAnnotationExecutorByBeanName(String beanName){
-        if(StringUtils.isEmpty(beanName)){
-            return "";
+        if(StringUtils.isBlank(beanName)){
+            return StringUtils.EMPTY;
         }
         for(CacheAnnotationEnum annotationEnum: CacheAnnotationEnum.values()){
             if(annotationEnum.getBeanName().equals(beanName)){
                 return annotationEnum.getAnnotationExecutor();
             }
         }
-        return "";
+        return StringUtils.EMPTY;
     }
 
-    public String getBeanName() {
+    private String getBeanName() {
         return beanName;
     }
 
-    public String getAnnotationExecutor() {
+    private String getAnnotationExecutor() {
         return annotationExecutor;
     }
 }

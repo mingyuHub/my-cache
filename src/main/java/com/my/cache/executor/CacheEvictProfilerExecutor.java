@@ -1,14 +1,15 @@
-package com.my.cache.service;
+package com.my.cache.executor;
 
 import com.my.cache.domain.BasicCacheOperation;
 import com.my.cache.domain.CacheEvictProfilerOperation;
+import com.my.cache.executor.AbstractCacheExecutor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.springframework.stereotype.Service;
 
 /**
  * @author: chenmingyu
  * @date: 2019/10/10 15:18
- * @description:
+ * @description: 清除缓存注解执行器
  */
 @Service
 public class CacheEvictProfilerExecutor extends AbstractCacheExecutor {

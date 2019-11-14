@@ -1,10 +1,8 @@
 package com.my.cache.expression;
 
 import lombok.Getter;
-import org.springframework.cache.Cache;
 
 import java.lang.reflect.Method;
-import java.util.Collection;
 
 /**
  * @author: chenmingyu

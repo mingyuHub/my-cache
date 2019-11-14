@@ -1,4 +1,4 @@
-package com.my.cache.support.impl;
+package com.my.cache.support;
 
 import com.alibaba.fastjson.JSONObject;
 import com.my.cache.constant.SeparatorConstant;

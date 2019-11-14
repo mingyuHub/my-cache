@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
  * @date: 2019/9/30 14:09
  * @description:
  */
-public interface CacheService {
+public interface Cache {
 
     /**
      * 获取缓存

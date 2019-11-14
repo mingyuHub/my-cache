@@ -1,7 +1,8 @@
-package com.my.cache.service;
+package com.my.cache.executor;
 
 import com.my.cache.domain.BasicCacheOperation;
 import com.my.cache.domain.CacheProfilerOperation;
+import com.my.cache.executor.AbstractCacheExecutor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.springframework.stereotype.Service;
 
@@ -23,17 +24,17 @@ public class CacheProfilerExecutor extends AbstractCacheExecutor {
             }
             String key = cacheProfilerOperation.getKey();
             if(cacheProfilerOperation.getLocalCache()){
-                result = firstLevelCache.get(key);
+                result = localCache.get(key);
             }
             if(null != result){
                 return result;
             }
-            result = secondLevelCache.get(key);
+            result = distributedCache.get(key);
             if(null == result){
                 result = joinPoint.proceed();
             }
-            secondLevelCache.setEx(key,result,cacheProfilerOperation.getExpire(),cacheProfilerOperation.getTimeUnit());
-            firstLevelCache.setEx(key,result,cacheProfilerOperation.getExpire(),cacheProfilerOperation.getTimeUnit());
+            distributedCache.setEx(key,result,cacheProfilerOperation.getExpire(),cacheProfilerOperation.getTimeUnit());
+            localCache.setEx(key,result,cacheProfilerOperation.getExpire(),cacheProfilerOperation.getTimeUnit());
         } catch (Throwable throwable) {
             throwable.printStackTrace();
         }
