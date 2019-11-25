@@ -1,13 +1,12 @@
 package com.my.cache.support;
 
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.my.cache.domain.BasicCacheOperation;
+import com.my.cache.constant.CacheTypeEnum;
+import com.my.cache.domain.BasicCache;
 import com.my.cache.service.ApplicationCache;
-import com.my.cache.service.Cache;
+import com.my.cache.service.CacheDecorator;
+import com.my.cache.service.Cacheable;
 import com.my.cache.service.DistributedCache;
-import org.springframework.lang.Nullable;
 
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -26,45 +25,66 @@ public class DefaultCacheManager implements CacheManager{
     private DistributedCache distributedCache;
 
     /**
-     * key对应的缓存
+     * 带有本地缓存的Cacheable Map
+     * key：过期时间 long
+     * value：缓存
      */
-    private final Map<String, Cache> cacheMap = new ConcurrentHashMap<>(16);
+    private final Map<Long, Cacheable> cacheMap = new ConcurrentHashMap<>(16);
 
     /**
      * 统计的时候使用
      */
     private volatile Set<String> cacheNames = new LinkedHashSet();
 
+    public DefaultCacheManager(DistributedCache distributedCache) {
+        this.distributedCache = distributedCache;
+    }
+
     @Override
-    public Cache getCache(String name) {
-        Cache cache = this.cacheMap.get(name);
+    public Set<String> cacheNames() {
+        return cacheNames;
+    }
+
+    @Override
+    public Cacheable getCacheable(BasicCache basicCache) {
+        // 分布式缓存
+        if(CacheTypeEnum.DISTRIBUTED.equals(basicCache.getCacheTypeEnum())){
+            cacheNames.add(basicCache.getCacheName());
+            return distributedCache;
+        }
+
+        // 本地缓存或者多级缓存
+        Cacheable cache = this.cacheMap.get(basicCache.getLocalCacheExpire());
         if (cache != null) {
             return cache;
         }
         synchronized (this.cacheMap) {
-            cache = this.cacheMap.get(name);
+            cache = this.cacheMap.get(basicCache.getLocalCacheExpire());
             if (cache == null) {
-                cache = getMissingCache(name,null);
+                cache = createCache(basicCache);
                 if (cache != null) {
-                    this.cacheMap.put(name, cache);
-                    cacheNames.add(name);
+                    this.cacheMap.put(basicCache.getLocalCacheExpire(), cache);
+                    cacheNames.add(basicCache.getCacheName());
                 }
             }
             return cache;
         }
     }
 
+
     /**
-     * 创建cache
+     * 创建缓存Cacheable
      * @return
      */
-    private Cache getMissingCache(String name, BasicCacheOperation basicCacheOperation){
+    private Cacheable createCache(BasicCache basicCache){
+        // 本地缓存
         ApplicationCache applicationCache = new ApplicationCache();
-        return applicationCache;
+        if(CacheTypeEnum.APPLICATION.equals(basicCache.getCacheTypeEnum())){
+            return applicationCache;
+        }
+        // 多级缓存
+        CacheDecorator cacheDecorator = new CacheDecorator(applicationCache,distributedCache);
+        return cacheDecorator;
     }
 
-
-    public DefaultCacheManager(DistributedCache distributedCache) {
-        this.distributedCache = distributedCache;
-    }
 }

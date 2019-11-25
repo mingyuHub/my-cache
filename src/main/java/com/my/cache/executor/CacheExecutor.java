@@ -1,6 +1,7 @@
 package com.my.cache.executor;
 
-import com.my.cache.domain.BasicCacheOperation;
+import com.my.cache.domain.BasicCache;
+import com.my.cache.service.Cacheable;
 import org.aspectj.lang.ProceedingJoinPoint;
 
 /**
@@ -11,10 +12,10 @@ import org.aspectj.lang.ProceedingJoinPoint;
 public interface CacheExecutor {
 
     /**
-     * 根据不同注解执行各自策略
+     * 不同注解执行不同策略
      * @param joinPoint
      * @param basicCacheInformation
      * @return
      */
-    Object execute(ProceedingJoinPoint joinPoint, BasicCacheOperation basicCacheInformation);
+    Object execute(ProceedingJoinPoint joinPoint, BasicCache basicCacheInformation, Cacheable cacheable);
 }

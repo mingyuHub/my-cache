@@ -1,8 +1,8 @@
 package com.my.cache.executor;
 
-import com.my.cache.domain.BasicCacheOperation;
-import com.my.cache.domain.CacheProfilerOperation;
-import com.my.cache.executor.AbstractCacheExecutor;
+import com.my.cache.domain.BasicCache;
+import com.my.cache.domain.CacheProfilerInfo;
+import com.my.cache.service.Cacheable;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.springframework.stereotype.Service;
 
@@ -11,30 +11,20 @@ import org.springframework.stereotype.Service;
  * @date: 2019/10/10 14:45
  * @description: CacheProfiler 注解执行策略
  */
-@Service
 public class CacheProfilerExecutor extends AbstractCacheExecutor {
 
     @Override
-    public Object execute(ProceedingJoinPoint joinPoint, BasicCacheOperation basicCacheInformation) {
+    public Object execute(ProceedingJoinPoint joinPoint, BasicCache basicCache, Cacheable cacheable) {
         Object result = null;
-        CacheProfilerOperation cacheProfilerOperation = null;
         try {
-            if(basicCacheInformation instanceof CacheProfilerOperation){
-                cacheProfilerOperation = (CacheProfilerOperation)basicCacheInformation;
-            }
-            String key = cacheProfilerOperation.getKey();
-            if(cacheProfilerOperation.getLocalCache()){
-                result = localCache.get(key);
-            }
+            result = cacheable.get(basicCache.getCacheName());
             if(null != result){
                 return result;
             }
-            result = distributedCache.get(key);
-            if(null == result){
-                result = joinPoint.proceed();
+            result = joinPoint.proceed();
+            if(null != result){
+                cacheable.set(basicCache.getCacheName(),result);
             }
-            distributedCache.setEx(key,result,cacheProfilerOperation.getExpire(),cacheProfilerOperation.getTimeUnit());
-            localCache.setEx(key,result,cacheProfilerOperation.getExpire(),cacheProfilerOperation.getTimeUnit());
         } catch (Throwable throwable) {
             throwable.printStackTrace();
         }

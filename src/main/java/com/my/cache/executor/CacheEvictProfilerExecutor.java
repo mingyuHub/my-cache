@@ -1,8 +1,8 @@
 package com.my.cache.executor;
 
-import com.my.cache.domain.BasicCacheOperation;
-import com.my.cache.domain.CacheEvictProfilerOperation;
-import com.my.cache.executor.AbstractCacheExecutor;
+import com.my.cache.domain.BasicCache;
+import com.my.cache.domain.CacheEvictProfilerInfo;
+import com.my.cache.service.Cacheable;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.springframework.stereotype.Service;
 
@@ -11,32 +11,19 @@ import org.springframework.stereotype.Service;
  * @date: 2019/10/10 15:18
  * @description: 清除缓存注解执行器
  */
-@Service
 public class CacheEvictProfilerExecutor extends AbstractCacheExecutor {
 
     @Override
-    public Object execute(ProceedingJoinPoint joinPoint, BasicCacheOperation basicCacheInformation) {
-
-        Object object = null;
-        CacheEvictProfilerOperation cacheEvictProfilerOperation = null;
+    public Object execute(ProceedingJoinPoint joinPoint, BasicCache basicCache, Cacheable cacheable) {
+        Object result = null;
         try {
-            if(basicCacheInformation instanceof CacheEvictProfilerOperation){
-                cacheEvictProfilerOperation = (CacheEvictProfilerOperation)basicCacheInformation;
+            if(basicCache.getAsync()){
+                cacheable.del(basicCache.getCacheName());
             }
-            if(cacheEvictProfilerOperation.isBeforeExecute()){
-                clearCache(cacheEvictProfilerOperation.getKey());
-                return joinPoint.proceed();
-            }
-            joinPoint.proceed();
-            clearCache(cacheEvictProfilerOperation.getKey());
+            result = joinPoint.proceed();
         } catch (Throwable throwable) {
             throwable.printStackTrace();
         }
-        return object;
+        return result;
     }
-
-    private void clearCache(String key){
-        distributedCache.del(key);
-        localCache.del(key);
-    };
 }

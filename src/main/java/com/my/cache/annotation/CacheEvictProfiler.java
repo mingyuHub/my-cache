@@ -17,42 +17,31 @@ import java.lang.annotation.Target;
 public @interface CacheEvictProfiler {
 
     /**
-     * key前缀
+     * 缓存名称 前缀
      */
     String prefixKey() default "";;
 
     /**
-     * 入参
-     * 支持SpEL表达式
+     * 缓存名称 后缀 由SePL表达式解析而来
      */
     String key() default "";
 
     /**
-     * 拼接key，优先级小于key()
-     * @return
+     * 缓存名称是否使用入参进行拼接
+     * @return boolean
      */
     boolean useParams() default true;
 
     /**
-     * 当SpEL表达式为true时进行删除
-     * @return
+     * 条件判断，由SePL表达式解析而来，true执行缓存逻辑，false执行业务逻辑
+     * @return String
      */
     String condition() default "";
 
     /**
-     * 异步删除缓存
-     * @return
+     * 是否支持异步
+     * @return boolean
      */
-    boolean asyncEvict() default false;
+    boolean async() default false;
 
-    /**
-     * 方法执行之前删除缓存
-     * @return
-     */
-    boolean beforeExecute() default true;
-
-    /**
-     * key生成方式
-     */
-    String keyGenerator() default "";
 }

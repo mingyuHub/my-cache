@@ -1,15 +1,13 @@
 package com.my.cache.service;
 
-import org.springframework.stereotype.Service;
-
 import java.util.concurrent.TimeUnit;
 
 /**
  * @author: chenmingyu
  * @date: 2019/10/10 11:14
- * @description: 分布式缓存
+ * @description: 缓存装饰类
  */
-public class DistributedCache implements Cache {
+public class DistributedCache implements Cacheable {
 
     @Override
     public Object get(String key) {

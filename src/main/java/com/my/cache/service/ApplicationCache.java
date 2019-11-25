@@ -10,8 +10,7 @@ import java.util.concurrent.TimeUnit;
  * @date: 2019/10/10 11:13
  * @description: 本地缓存
  */
-public class ApplicationCache extends AbstractCache {
-
+public class ApplicationCache implements Cacheable {
 
     /**
      * 缓存对象
@@ -20,7 +19,6 @@ public class ApplicationCache extends AbstractCache {
 
     @Override
     public Object get(String key) {
-
         System.out.println("一级缓存：get");
         return null;
     }
@@ -46,7 +44,6 @@ public class ApplicationCache extends AbstractCache {
         return null;
     }
 
-
     public ApplicationCache() {
         this.cache = createCache();
     }
@@ -56,7 +53,7 @@ public class ApplicationCache extends AbstractCache {
      * @return
      */
     private Cache createCache(){
-        Caffeine<Object, Object> builder = Caffeine.newBuilder().initialCapacity(64).initialCapacity(64);
+        Caffeine<Object, Object> builder = Caffeine.newBuilder().initialCapacity(64).maximumSize(64);
         return builder.build();
     }
 }

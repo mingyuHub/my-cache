@@ -1,10 +1,8 @@
 package com.my.cache.support;
 
-import com.my.cache.domain.BasicCacheOperation;
+import com.my.cache.domain.BasicCache;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.springframework.lang.Nullable;
-
-import java.lang.reflect.Method;
 
 /**
  * @author: chenmingyu
@@ -14,5 +12,5 @@ import java.lang.reflect.Method;
 public interface CacheAnnotationParser {
 
     @Nullable
-    BasicCacheOperation parseCacheAnnotations(ProceedingJoinPoint joinPoint);
+    BasicCache parseCacheAnnotations(ProceedingJoinPoint joinPoint);
 }

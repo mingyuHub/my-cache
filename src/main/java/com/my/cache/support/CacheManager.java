@@ -1,10 +1,9 @@
 package com.my.cache.support;
 
-import com.my.cache.service.Cache;
-import com.my.cache.service.DistributedCache;
+import com.my.cache.domain.BasicCache;
+import com.my.cache.service.Cacheable;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Set;
 
 /**
  * @author: chenmingyu
@@ -13,13 +12,16 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public interface CacheManager {
 
-
     /**
-     * 根据name获取Cache
-     * @param name
+     * 获取所有缓存名称
      * @return
      */
-    Cache getCache(String name);
+    Set<String> cacheNames();
 
-
+    /**
+     * 获取缓存
+     * @param basicCache
+     * @return
+     */
+    Cacheable getCacheable(BasicCache basicCache);
 }

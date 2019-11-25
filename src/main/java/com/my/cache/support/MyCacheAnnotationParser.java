@@ -2,13 +2,10 @@ package com.my.cache.support;
 
 import com.my.cache.annotation.CacheEvictProfiler;
 import com.my.cache.annotation.CacheProfiler;
+import com.my.cache.constant.AnnotationTypeEnum;
 import com.my.cache.constant.SeparatorConstant;
-import com.my.cache.domain.BasicCacheOperation;
-import com.my.cache.domain.CacheEvictProfilerOperation;
-import com.my.cache.domain.CacheProfilerOperation;
+import com.my.cache.domain.BasicCache;
 import com.my.cache.expression.CacheExpressionEvaluator;
-import com.my.cache.support.CacheAnnotationParser;
-import com.my.cache.support.KeyGenerator;
 import com.my.cache.util.ToStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.aspectj.lang.JoinPoint;
@@ -20,7 +17,6 @@ import org.springframework.context.expression.AnnotatedElementKey;
 import org.springframework.core.BridgeMethodResolver;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.expression.EvaluationContext;
-import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.lang.annotation.Annotation;
@@ -49,14 +45,14 @@ public class MyCacheAnnotationParser implements CacheAnnotationParser {
     }
 
     @Override
-    public BasicCacheOperation parseCacheAnnotations(ProceedingJoinPoint joinPoint) {
+    public BasicCache parseCacheAnnotations(ProceedingJoinPoint joinPoint) {
         try {
             Method method = this.getMethod(joinPoint);
             Set<? extends Annotation> anns = AnnotatedElementUtils.findAllMergedAnnotations(method, CACHE_OPERATION_ANNOTATIONS);
             if(CollectionUtils.isEmpty(anns)){
                 return null;
             }
-            final List<BasicCacheOperation> cacheInformation = new ArrayList<>(1);
+            final List<BasicCache> cacheInformation = new ArrayList<>(1);
             anns.stream().filter(ann -> ann instanceof CacheEvictProfiler).forEach(ann->{
                 cacheInformation.add(parseCacheEvictProfiler((CacheEvictProfiler) ann, method, joinPoint));
             });
@@ -79,77 +75,80 @@ public class MyCacheAnnotationParser implements CacheAnnotationParser {
      * @return
      * @throws Exception
      */
-    public Method getMethod(JoinPoint jp) throws Exception {
+    public Method getMethod(JoinPoint jp) {
         MethodSignature msig = (MethodSignature)jp.getSignature();
         Method method = msig.getMethod();
         return BridgeMethodResolver.findBridgedMethod(method);
     }
 
     /**
-     * 解析CacheProfiler
+     * 解析@CacheProfiler
      * @return
      */
-    private BasicCacheOperation parseCacheProfiler(CacheProfiler cacheProfiler, Method method, ProceedingJoinPoint joinPoint){
-        CacheProfilerOperation cacheProfilerOperation = new CacheProfilerOperation();
-        cacheProfilerOperation.setClassName(method.getDeclaringClass().getName());
-        cacheProfilerOperation.setMethodName(method.getName());
-        cacheProfilerOperation.setParams(joinPoint.getArgs());
-        cacheProfilerOperation.setPrefixKey(cacheProfiler.prefixKey());
-        Object key = parseKey(cacheProfiler.key(), method, joinPoint.getArgs(),joinPoint.getTarget());
-        cacheProfilerOperation.setKey(ToStringUtils.toString(key));
-        cacheProfilerOperation.setUseParam(cacheProfiler.useParams());
-        cacheProfilerOperation.setKeyGenerator(cacheProfiler.keyGenerator());
-        cacheProfilerOperation.setExpire(cacheProfiler.expire());
-        cacheProfilerOperation.setTimeUnit(cacheProfiler.timeUnit());
-        cacheProfilerOperation.setLocalCache(cacheProfiler.localCache());
-        cacheProfilerOperation.setLocalCacheExpire(cacheProfiler.localCacheExpire());
-        cacheProfilerOperation.setCondition(parseCondition(cacheProfiler.condition(), method, joinPoint.getArgs(), joinPoint.getTarget()));
-        cacheProfilerOperation.setCacheName(generateCacheName(cacheProfilerOperation));
-        return cacheProfilerOperation;
+    private BasicCache parseCacheProfiler(CacheProfiler cacheProfiler, Method method, ProceedingJoinPoint joinPoint){
+        BasicCache basicCache = new BasicCache();
+        /*basicCache.setClassName(method.getDeclaringClass().getName());
+        basicCache.setMethodName(method.getName());
+        basicCache.setParams(joinPoint.getArgs());*/
+        Object object = parseKey(cacheProfiler.key(), method, joinPoint.getArgs(),joinPoint.getTarget());
+        String key = "";
+        if(Objects.nonNull(object)){
+            key = object.toString();
+        } else if(cacheProfiler.useParams()){
+            key = ToStringUtils.arrayToString(joinPoint.getArgs());
+        }
+        String cacheName = generateCacheName(cacheProfiler.prefixKey(), key);
+        basicCache.setCacheName(cacheName);
+        basicCache.setCondition(parseCondition(cacheProfiler.condition(), method, joinPoint.getArgs(), joinPoint.getTarget()));
+        basicCache.setAsync(cacheProfiler.async());
+        basicCache.setCacheTypeEnum(cacheProfiler.cacheType());
+        basicCache.setAnnotationTypeEnum(AnnotationTypeEnum.CACHE_PROFILER);
+        basicCache.setLocalCacheExpire(cacheProfiler.localCacheExpire());
+        basicCache.setDistributedCacheExpire(cacheProfiler.distributedCacheExpire());
+        return basicCache;
     }
 
     /**
-     * 解析CacheEvictProfiler
+     * 解析@CacheEvictProfiler
      * @return
      */
-    private BasicCacheOperation parseCacheEvictProfiler(CacheEvictProfiler cacheEvictProfiler, Method method, ProceedingJoinPoint joinPoint){
-        CacheEvictProfilerOperation cacheEvictProfilerOperation = new CacheEvictProfilerOperation();
-        cacheEvictProfilerOperation.setClassName(method.getDeclaringClass().getSimpleName());
-        cacheEvictProfilerOperation.setMethodName(method.getName());
-        cacheEvictProfilerOperation.setParams(joinPoint.getArgs());
-        cacheEvictProfilerOperation.setPrefixKey(cacheEvictProfiler.prefixKey());
-        Object key = parseKey(cacheEvictProfiler.key(), method, joinPoint.getArgs(),joinPoint.getTarget());
-        cacheEvictProfilerOperation.setKey(key.toString());
-        cacheEvictProfilerOperation.setUseParam(cacheEvictProfiler.useParams());
-        cacheEvictProfilerOperation.setKeyGenerator(cacheEvictProfiler.keyGenerator());
-        cacheEvictProfilerOperation.setAsyncEvict(cacheEvictProfiler.asyncEvict());
-        cacheEvictProfilerOperation.setBeforeExecute(cacheEvictProfiler.beforeExecute());
-        cacheEvictProfilerOperation.setCondition(parseCondition(cacheEvictProfiler.condition(), method, joinPoint.getArgs(), joinPoint.getTarget()));
-        cacheEvictProfilerOperation.setCacheName(generateCacheName(cacheEvictProfilerOperation));
-
-        return cacheEvictProfilerOperation;
+    private BasicCache parseCacheEvictProfiler(CacheEvictProfiler cacheEvictProfiler, Method method, ProceedingJoinPoint joinPoint){
+        BasicCache basicCache = new BasicCache();
+        Object object = parseKey(cacheEvictProfiler.key(), method, joinPoint.getArgs(),joinPoint.getTarget());
+        String key = "";
+        if(Objects.nonNull(object)){
+            key = object.toString();
+        } else if(cacheEvictProfiler.useParams()){
+            key = ToStringUtils.arrayToString(joinPoint.getArgs());
+        }
+        String cacheName = generateCacheName(cacheEvictProfiler.prefixKey(), key);
+        basicCache.setCacheName(cacheName);
+        basicCache.setAsync(cacheEvictProfiler.asyncEvict());
+        basicCache.setAnnotationTypeEnum(AnnotationTypeEnum.CACHE_EVICT_PROFILER);
+        basicCache.setCondition(parseCondition(cacheEvictProfiler.condition(), method, joinPoint.getArgs(), joinPoint.getTarget()));
+        return basicCache;
     }
 
     /**
-     * generate cacheName
-     * @param cacheOperation
+     *
+     * @param prefixKey
+     * @param key
      * @return
      */
-    private String generateCacheName(BasicCacheOperation cacheOperation){
+    private String generateCacheName(String prefixKey, String key){
         StringBuilder cacheName = new StringBuilder();
-        if(StringUtils.isNotBlank(cacheOperation.getPrefixKey())){
-            cacheName.append(cacheOperation.getPrefixKey());
-            if(StringUtils.isNotBlank(cacheOperation.getKey())){
-                cacheName.append(SeparatorConstant.MH).append(cacheOperation.getKey());
-            } else if (cacheOperation.getUseParam()) {
-                cacheName.append(SeparatorConstant.MH).append(ToStringUtils.arrayToString(cacheOperation.getParams()));
+        if (StringUtils.isNotBlank(prefixKey)) {
+            cacheName.append(prefixKey);
+            if (StringUtils.isNotBlank(key)) {
+                cacheName.append(SeparatorConstant.MH).append(key);
             }
             return cacheName.toString();
         }
-        if(StringUtils.isBlank(cacheOperation.getKeyGenerator())){
+       /*if(StringUtils.isBlank(cacheOperation.getKeyGenerator())){
             cacheOperation.setKeyGenerator(DEFAULT_KEY_GENERATOR);
         }
-        return keyGeneratorMap.get(cacheOperation.getKeyGenerator()).generate(cacheOperation.getClassName(), cacheOperation.getMethodName(), cacheOperation.getParams());
+        return keyGeneratorMap.get(cacheOperation.getKeyGenerator()).generate(cacheOperation.getClassName(), cacheOperation.getMethodName(), cacheOperation.getParams());*/
+       return "";
     };
 
     /**
