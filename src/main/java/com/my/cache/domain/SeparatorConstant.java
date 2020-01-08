@@ -1,4 +1,4 @@
-package com.my.cache.constant;
+package com.my.cache.domain;
 
 /**
  * @author: chenmingyu

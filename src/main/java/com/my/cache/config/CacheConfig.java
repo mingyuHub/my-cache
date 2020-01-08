@@ -1,4 +1,4 @@
-package com.my.cache.support;
+package com.my.cache.config;
 
 import com.my.cache.domain.BasicCache;
 import com.my.cache.service.Cacheable;
@@ -10,7 +10,7 @@ import java.util.Set;
  * @date: 2019/11/11 23:03
  * @description:
  */
-public interface CacheManager {
+public interface CacheConfig {
 
     /**
      * 获取所有缓存名称

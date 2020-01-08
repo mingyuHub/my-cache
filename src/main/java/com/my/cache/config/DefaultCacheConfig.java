@@ -1,11 +1,15 @@
-package com.my.cache.support;
+package com.my.cache.config;
 
-import com.my.cache.constant.CacheTypeEnum;
 import com.my.cache.domain.BasicCache;
-import com.my.cache.service.ApplicationCache;
+import com.my.cache.domain.CacheTypeEnum;
+import com.my.cache.exception.CacheException;
 import com.my.cache.service.CacheDecorator;
 import com.my.cache.service.Cacheable;
 import com.my.cache.service.DistributedCache;
+import com.my.cache.service.LocalCache;
+import com.my.cache.support.KeyGenerator;
+import com.my.cache.support.MyKeyGenerator;
+import org.springframework.util.Assert;
 
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -17,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @date: 2019/11/11 23:19
  * @description:
  */
-public class DefaultCacheManager implements CacheManager{
+public class DefaultCacheConfig implements CacheConfig {
 
     /**
      * 分布式缓存
@@ -25,9 +29,14 @@ public class DefaultCacheManager implements CacheManager{
     private DistributedCache distributedCache;
 
     /**
-     * 带有本地缓存的Cacheable Map
+     * 缓存名称生成器
+     */
+    private KeyGenerator keyGenerator;
+
+    /**
+     * 缓存Map
      * key：过期时间 long
-     * value：缓存
+     * value：缓存操作对象
      */
     private final Map<Long, Cacheable> cacheMap = new ConcurrentHashMap<>(16);
 
@@ -36,8 +45,12 @@ public class DefaultCacheManager implements CacheManager{
      */
     private volatile Set<String> cacheNames = new LinkedHashSet();
 
-    public DefaultCacheManager(DistributedCache distributedCache) {
-        this.distributedCache = distributedCache;
+    private DefaultCacheConfig(Builder builder) {
+        if(null == builder || null == builder.distributedCache){
+            throw new CacheException("create DefaultCacheConfig: builder.distributedCache must not be null");
+        }
+        this.distributedCache = builder.distributedCache;
+        this.keyGenerator = builder.keyGenerator;
     }
 
     @Override
@@ -71,15 +84,14 @@ public class DefaultCacheManager implements CacheManager{
         }
     }
 
-
     /**
      * 创建缓存Cacheable
      * @return
      */
     private Cacheable createCache(BasicCache basicCache){
         // 本地缓存
-        ApplicationCache applicationCache = new ApplicationCache();
-        if(CacheTypeEnum.APPLICATION.equals(basicCache.getCacheTypeEnum())){
+        LocalCache applicationCache = new LocalCache(basicCache);
+        if(CacheTypeEnum.LOCAL.equals(basicCache.getCacheTypeEnum())){
             return applicationCache;
         }
         // 多级缓存
@@ -87,4 +99,34 @@ public class DefaultCacheManager implements CacheManager{
         return cacheDecorator;
     }
 
+    /**
+     * 静态内部类
+     */
+    public static class Builder {
+
+        /**
+         * 分布式缓存
+         */
+        private DistributedCache distributedCache;
+
+        /**
+         * 缓存名称生成器
+         */
+        private KeyGenerator keyGenerator = new MyKeyGenerator();
+
+        public Builder distributedCache(DistributedCache distributedCache) {
+            this.distributedCache = distributedCache;
+            return this;
+        }
+
+        public Builder keyGenerator(KeyGenerator keyGenerator) {
+            this.keyGenerator = keyGenerator;
+            return this;
+        }
+
+        public DefaultCacheConfig build() {
+            return new DefaultCacheConfig(this);
+        }
+
+    }
 }

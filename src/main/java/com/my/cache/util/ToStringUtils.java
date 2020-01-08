@@ -1,7 +1,7 @@
 package com.my.cache.util;
 
 import com.alibaba.fastjson.JSONObject;
-import com.my.cache.constant.SeparatorConstant;
+import com.my.cache.domain.SeparatorConstant;
 
 /**
  * @author: chenmingyu

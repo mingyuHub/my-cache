@@ -1,13 +1,12 @@
 package com.my.cache.annotation;
 
-import com.my.cache.constant.CacheAnnotationEnum;
+import com.my.cache.config.CacheConfig;
 import com.my.cache.domain.BasicCache;
 import com.my.cache.executor.CacheEvictProfilerExecutor;
 import com.my.cache.executor.CacheExecutor;
 import com.my.cache.executor.CacheProfilerExecutor;
 import com.my.cache.service.Cacheable;
 import com.my.cache.support.CacheAnnotationParser;
-import com.my.cache.support.CacheManager;
 import com.my.cache.support.MyCacheAnnotationParser;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -29,7 +28,7 @@ public class CacheAspect {
     /**
      * 解析注解
      */
-    private CacheAnnotationParser cacheAnnotationParser = new MyCacheAnnotationParser();
+    private final CacheAnnotationParser cacheAnnotationParser = new MyCacheAnnotationParser();
 
     /**
      * 执行器
@@ -42,19 +41,19 @@ public class CacheAspect {
     }
 
     @Autowired
-    private CacheManager cacheManager;
+    private CacheConfig cacheConfig;
 
     /**
      * CacheProfiler
      */
-    @Pointcut("@annotation(com.my.cache.annotation.CacheProfiler)")
+    @Pointcut("@annotation(com.my.cache.annotation.Cache)")
     public void cacheProfilerPoint(){
     }
 
     /**
      * CacheEvictProfiler
      */
-    @Pointcut("@annotation(com.my.cache.annotation.CacheEvictProfiler)")
+    @Pointcut("@annotation(com.my.cache.annotation.CacheEvict)")
     public void CacheEvictProfiler(){
     }
 
@@ -76,7 +75,7 @@ public class CacheAspect {
             if(null == cacheExecutor){
                 return joinPoint.proceed();
             }
-            Cacheable cacheable = cacheManager.getCacheable(basicCache);
+            Cacheable cacheable = cacheConfig.getCacheable(basicCache);
             return cacheExecutor.execute(joinPoint, basicCache, cacheable);
         } catch (Throwable throwable) {
             throwable.printStackTrace();

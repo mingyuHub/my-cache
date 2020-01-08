@@ -1,8 +1,7 @@
 package com.my.cache.controller;
 
-import com.my.cache.annotation.CacheProfiler;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
+import com.my.cache.annotation.Cache;
+import com.my.cache.config.DefaultCacheConfig;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -15,8 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestController {
 
     @GetMapping("/test")
-    @CacheProfiler(prefixKey = "test:name", condition = "#age lt 10")
+    @Cache(prefixKey = "test:name", condition = "#age lt 10")
     public String test(Integer age,String name){
+
         System.out.println("this is test");
         return "name";
     }

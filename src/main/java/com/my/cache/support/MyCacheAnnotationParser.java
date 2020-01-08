@@ -1,10 +1,10 @@
 package com.my.cache.support;
 
-import com.my.cache.annotation.CacheEvictProfiler;
-import com.my.cache.annotation.CacheProfiler;
-import com.my.cache.constant.AnnotationTypeEnum;
-import com.my.cache.constant.SeparatorConstant;
+import com.my.cache.annotation.Cache;
+import com.my.cache.annotation.CacheEvict;
+import com.my.cache.domain.AnnotationTypeEnum;
 import com.my.cache.domain.BasicCache;
+import com.my.cache.domain.SeparatorConstant;
 import com.my.cache.expression.CacheExpressionEvaluator;
 import com.my.cache.util.ToStringUtils;
 import org.apache.commons.lang.StringUtils;
@@ -12,7 +12,6 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.aop.framework.AopProxyUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.expression.AnnotatedElementKey;
 import org.springframework.core.BridgeMethodResolver;
 import org.springframework.core.annotation.AnnotatedElementUtils;
@@ -32,32 +31,28 @@ public class MyCacheAnnotationParser implements CacheAnnotationParser {
 
     private static final Set<Class<? extends Annotation>> CACHE_OPERATION_ANNOTATIONS = new LinkedHashSet<>(8);
 
-    private static final String DEFAULT_KEY_GENERATOR = "defaultKeyGenerator";
-
-    @Autowired
-    private Map<String,KeyGenerator> keyGeneratorMap;
-
     private final CacheExpressionEvaluator evaluator = new CacheExpressionEvaluator();
 
     static {
-        CACHE_OPERATION_ANNOTATIONS.add(CacheProfiler.class);
-        CACHE_OPERATION_ANNOTATIONS.add(CacheEvictProfiler.class);
+        CACHE_OPERATION_ANNOTATIONS.add(Cache.class);
+        CACHE_OPERATION_ANNOTATIONS.add(CacheEvict.class);
     }
 
     @Override
     public BasicCache parseCacheAnnotations(ProceedingJoinPoint joinPoint) {
         try {
             Method method = this.getMethod(joinPoint);
+
             Set<? extends Annotation> anns = AnnotatedElementUtils.findAllMergedAnnotations(method, CACHE_OPERATION_ANNOTATIONS);
             if(CollectionUtils.isEmpty(anns)){
                 return null;
             }
             final List<BasicCache> cacheInformation = new ArrayList<>(1);
-            anns.stream().filter(ann -> ann instanceof CacheEvictProfiler).forEach(ann->{
-                cacheInformation.add(parseCacheEvictProfiler((CacheEvictProfiler) ann, method, joinPoint));
+            anns.stream().filter(ann -> ann instanceof CacheEvict).forEach(ann->{
+                cacheInformation.add(parseCacheEvictProfiler((CacheEvict) ann, method, joinPoint));
             });
-            anns.stream().filter(ann -> ann instanceof CacheProfiler).forEach(ann->{
-                cacheInformation.add(parseCacheProfiler((CacheProfiler) ann, method, joinPoint));
+            anns.stream().filter(ann -> ann instanceof Cache).forEach(ann->{
+                cacheInformation.add(parseCacheProfiler((Cache) ann, method, joinPoint));
             });
             if(CollectionUtils.isEmpty(cacheInformation)){
                 return null;
@@ -85,7 +80,7 @@ public class MyCacheAnnotationParser implements CacheAnnotationParser {
      * 解析@CacheProfiler
      * @return
      */
-    private BasicCache parseCacheProfiler(CacheProfiler cacheProfiler, Method method, ProceedingJoinPoint joinPoint){
+    private BasicCache parseCacheProfiler(Cache cacheProfiler, Method method, ProceedingJoinPoint joinPoint){
         BasicCache basicCache = new BasicCache();
         /*basicCache.setClassName(method.getDeclaringClass().getName());
         basicCache.setMethodName(method.getName());
@@ -103,6 +98,7 @@ public class MyCacheAnnotationParser implements CacheAnnotationParser {
         basicCache.setAsync(cacheProfiler.async());
         basicCache.setCacheTypeEnum(cacheProfiler.cacheType());
         basicCache.setAnnotationTypeEnum(AnnotationTypeEnum.CACHE_PROFILER);
+        basicCache.setTimeUnit(cacheProfiler.timeUnit());
         basicCache.setLocalCacheExpire(cacheProfiler.localCacheExpire());
         basicCache.setDistributedCacheExpire(cacheProfiler.distributedCacheExpire());
         return basicCache;
@@ -112,7 +108,7 @@ public class MyCacheAnnotationParser implements CacheAnnotationParser {
      * 解析@CacheEvictProfiler
      * @return
      */
-    private BasicCache parseCacheEvictProfiler(CacheEvictProfiler cacheEvictProfiler, Method method, ProceedingJoinPoint joinPoint){
+    private BasicCache parseCacheEvictProfiler(CacheEvict cacheEvictProfiler, Method method, ProceedingJoinPoint joinPoint){
         BasicCache basicCache = new BasicCache();
         Object object = parseKey(cacheEvictProfiler.key(), method, joinPoint.getArgs(),joinPoint.getTarget());
         String key = "";
@@ -123,7 +119,7 @@ public class MyCacheAnnotationParser implements CacheAnnotationParser {
         }
         String cacheName = generateCacheName(cacheEvictProfiler.prefixKey(), key);
         basicCache.setCacheName(cacheName);
-        basicCache.setAsync(cacheEvictProfiler.asyncEvict());
+        basicCache.setAsync(cacheEvictProfiler.async());
         basicCache.setAnnotationTypeEnum(AnnotationTypeEnum.CACHE_EVICT_PROFILER);
         basicCache.setCondition(parseCondition(cacheEvictProfiler.condition(), method, joinPoint.getArgs(), joinPoint.getTarget()));
         return basicCache;

@@ -1,6 +1,6 @@
 package com.my.cache.annotation;
 
-import com.my.cache.constant.CacheTypeEnum;
+import com.my.cache.domain.CacheTypeEnum;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CacheProfiler {
+public @interface Cache {
 
     /**
      * 缓存名称 前缀
@@ -68,9 +68,4 @@ public @interface CacheProfiler {
      * 如果不设置，30秒内无访问则进行删除
      */
     long distributedCacheExpire() default -1;
-
-    /**
-     * 缓存name生成类
-     */
-    String keyGenerator() default "";
 }

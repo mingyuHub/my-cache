@@ -1,4 +1,4 @@
-package com.my.cache.constant;
+package com.my.cache.domain;
 
 /**
  * @auther: chenmingyu
@@ -7,7 +7,7 @@ package com.my.cache.constant;
  */
 public enum CacheTypeEnum {
 
-    APPLICATION("本地缓存"),
+    LOCAL("本地缓存"),
     DISTRIBUTED("分布式缓存"),
     ALL("多级缓存");
 

@@ -1,17 +1,15 @@
 package com.my.cache.executor;
 
 import com.my.cache.domain.BasicCache;
-import com.my.cache.domain.CacheProfilerInfo;
 import com.my.cache.service.Cacheable;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.springframework.stereotype.Service;
 
 /**
  * @author: chenmingyu
  * @date: 2019/10/10 14:45
  * @description: CacheProfiler 注解执行策略
  */
-public class CacheProfilerExecutor extends AbstractCacheExecutor {
+public class CacheProfilerExecutor implements CacheExecutor {
 
     @Override
     public Object execute(ProceedingJoinPoint joinPoint, BasicCache basicCache, Cacheable cacheable) {

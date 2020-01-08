@@ -1,8 +1,6 @@
 package com.my.cache.support;
 
-import com.alibaba.fastjson.JSONObject;
-import com.my.cache.constant.SeparatorConstant;
-import com.my.cache.support.KeyGenerator;
+import com.my.cache.domain.SeparatorConstant;
 import com.my.cache.util.ToStringUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -13,7 +11,6 @@ import org.springframework.stereotype.Service;
  * @date: 2019/10/14 15:04
  * @description:
  */
-@Service("defaultKeyGenerator")
 public class MyKeyGenerator implements KeyGenerator {
 
     @Override

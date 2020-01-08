@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CacheEvictProfiler {
+public @interface CacheEvict {
 
     /**
      * 缓存名称 前缀

@@ -1,4 +1,4 @@
-package com.my.cache.constant;
+package com.my.cache.domain;
 
 
 import org.apache.commons.lang.StringUtils;

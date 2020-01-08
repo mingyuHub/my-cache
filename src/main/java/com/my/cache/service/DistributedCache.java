@@ -7,32 +7,15 @@ import java.util.concurrent.TimeUnit;
  * @date: 2019/10/10 11:14
  * @description: 缓存装饰类
  */
-public class DistributedCache implements Cacheable {
+public interface DistributedCache extends Cacheable {
 
-    @Override
-    public Object get(String key) {
-        System.out.println("二级缓存：get");
-        return null;
-    }
-
-    @Override
-    public <T> T get(String key, Class<T> type) {
-        return null;
-    }
-
-    @Override
-    public void set(String key, Object value) {
-        System.out.println("二级缓存：set");
-    }
-
-    @Override
-    public Boolean setEx(String key, Object object, Long time, TimeUnit timeUnit) {
-        System.out.println("二级缓存：setEx");
-        return null;
-    }
-
-    @Override
-    public Boolean del(String key) {
-        return null;
-    }
+    /**
+     * 设置缓存，携带过期时间
+     * @param cacheName 缓存名称
+     * @param value 缓存值
+     * @param time  过期时间
+     * @param timeUnit 时间单位
+     * @return
+     */
+    Boolean setEx(String cacheName, Object value, Long time, TimeUnit timeUnit);
 }

@@ -29,25 +29,16 @@ public interface Cacheable {
     <T> T get(String key, @Nullable Class<T> type);
 
     /**
-     * 设置缓存
+     * 新增缓存
      * @param key
      * @param value
      */
     void set(String key, @Nullable Object value);
 
     /**
-     * 设置缓存 有过期时间
-     * @param key
-     * @param object
-     * @param time  缓存时间
+     * 删除缓存
+     * @param cacheName
      * @return
      */
-    Boolean setEx(String key, Object object, Long time, TimeUnit timeUnit);
-
-    /**
-     * 删除key
-     * @param key
-     * @return
-     */
-    Boolean del(String key);
+    void invalidate(String cacheName);
 }
